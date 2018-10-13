@@ -60,6 +60,17 @@ JNI_CALL(void, deleteContext)(
     delete context;
 }
 
+JNI_CALL(void, onPause)
+        (JNIEnv *, jclass, jlong native_application) {
+    from_id(native_application)->OnPause();
+}
+
+JNI_CALL(void, onResume)
+        (JNIEnv *env, jclass, jlong native_application, jobject context,
+         jobject activity) {
+    from_id(native_application)->OnResume(env, context, activity);
+}
+
 JNI_CALL(void, onGlSurfaceCreated)
         (JNIEnv *, jclass, jlong native_application) {
     from_id(native_application)->OnSurfaceCreated();

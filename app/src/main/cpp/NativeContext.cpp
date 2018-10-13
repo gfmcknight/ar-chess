@@ -8,18 +8,6 @@
 NativeContext::NativeContext(AAssetManager *assetManager, jobject jContext, JNIEnv *env) {
     this->assetManager = assetManager;
 
-    // === ATTENTION!  ATTENTION!  ATTENTION! ===
-    // This method can and will fail in user-facing situations.  Your
-    // application must handle these cases at least somewhat gracefully.  See
-    // HelloAR Java sample code for reasonable behavior.
-    CHECK(ArSession_create(env, jContext, &ar_session_) == AR_SUCCESS);
-    CHECK(ar_session_);
-
-    ArFrame_create(ar_session_, &ar_frame_);
-    CHECK(ar_frame_);
-
-    ArSession_setDisplayGeometry(ar_session_, display_rotation_, width_,
-                                 height_);
 }
 
 NativeContext::~NativeContext() {
@@ -83,8 +71,8 @@ void NativeContext::OnResume(void* env, void* context, void* activity) {
 void NativeContext::OnSurfaceCreated() {
     LOGI("OnSurfaceCreated()");
 
-    /*background_renderer_.InitializeGlContent(assetManager);
-    point_cloud_renderer_.InitializeGlContent(assetManager);
+    background_renderer_.InitializeGlContent(assetManager);
+    /*point_cloud_renderer_.InitializeGlContent(assetManager);
     andy_renderer_.InitializeGlContent(assetManager, "models/andy.obj",
                                        "models/andy.png");
     plane_renderer_.InitializeGlContent(assetManager);*/
