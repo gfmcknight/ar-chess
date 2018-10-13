@@ -165,7 +165,7 @@
                 jmethodID load_texture_method;
             } jniIds = [env]() -> JNIData {
                 constexpr char kHelperClassName[] =
-                        "com/google/ar/core/examples/c/helloar/JniInterface";
+                        "com/chess_ar/handtracking/archess/JNIInterface";
                 constexpr char kLoadImageMethodName[] = "loadImage";
                 constexpr char kLoadImageMethodSignature[] =
                         "(Ljava/lang/String;)Landroid/graphics/Bitmap;";

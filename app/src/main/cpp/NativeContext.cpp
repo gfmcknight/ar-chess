@@ -5,6 +5,15 @@
 #include "NativeContext.h"
 #include "logging.h"
 
+static const char *pieceFilename[] = {
+        [pt_pawn]       = "models/Pawn.obj",
+        [pt_rook]       = "models/Rook.obj",
+        [pt_bishop]     = "models/Bishop.obj",
+        [pt_knight]     = "models/Knight.obj",
+        [pt_queen]      = "models/Queen.obj",
+        [pt_king]       = "models/King.obj",
+};
+
 NativeContext::NativeContext(AAssetManager *assetManager, jobject jContext, JNIEnv *env) {
     this->assetManager = assetManager;
 
@@ -65,6 +74,7 @@ void NativeContext::OnResume(void* env, void* context, void* activity) {
 
     const ArStatus status = ArSession_resume(ar_session_);
     CHECK(status == AR_SUCCESS);
+
 }
 
 
@@ -76,6 +86,10 @@ void NativeContext::OnSurfaceCreated() {
     andy_renderer_.InitializeGlContent(assetManager, "models/andy.obj",
                                        "models/andy.png");
     plane_renderer_.InitializeGlContent(assetManager);*/
+
+    for (int t = 0; t < (int)pt_MAX; t++) {
+        pieceRenderers[t].InitializeGlContent(assetManager, pieceFilename[t], "models/Wood.png");
+    }
 }
 
 void NativeContext::OnDisplayGeometryChanged(int display_rotation,
@@ -92,7 +106,7 @@ void NativeContext::OnDisplayGeometryChanged(int display_rotation,
 
 void NativeContext::OnDrawFrame() {
     // Render the scene.
-    glClearColor(0.9f, 0.9f, 0.9f, 1.0f);
+    glClearColor(0.1f, 0.1f, 0.9f, 1.0f);
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
     glEnable(GL_CULL_FACE);
@@ -131,7 +145,6 @@ void NativeContext::OnDrawFrame() {
         return;
     }
 
-    /*
     // Get light estimation value.
     ArLightEstimate* ar_light_estimate;
     ArLightEstimateState ar_light_estimate_state;
@@ -153,6 +166,11 @@ void NativeContext::OnDrawFrame() {
     ArLightEstimate_destroy(ar_light_estimate);
     ar_light_estimate = nullptr;
 
+    glm::mat4 model_mat(1.0f);
+    float c[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+    pieceRenderers[pt_queen].Draw(projection_mat, view_mat, model_mat, color_correction, c);
+
+    /*
     // Render Andy objects.
     glm::mat4 model_mat(1.0f);
     for (const auto& colored_anchor : anchors_) {

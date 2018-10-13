@@ -12,7 +12,18 @@
 
 #include "arcore_c_api.h"
 #include "background_renderer.h"
+#include "obj_renderer.h"
 #include "glm.h"
+
+enum PieceType {
+    pt_pawn,
+    pt_rook,
+    pt_bishop,
+    pt_knight,
+    pt_queen,
+    pt_king,
+    pt_MAX
+};
 
 class NativeContext {
 public:
@@ -54,6 +65,8 @@ private:
     BackgroundRenderer background_renderer_;
     //PlaneRenderer plane_renderer_;
     //ObjRenderer andy_renderer_;
+
+    hello_ar::ObjRenderer pieceRenderers[pt_MAX];
 
 };
 
