@@ -2,6 +2,7 @@ package com.chess_ar.handtracking.archess;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.widget.TextView;
@@ -45,7 +46,8 @@ public class MainARActivity extends Activity {
     }
 
     private void gotoOpenGLActivity() {
-
+        Intent openglActivityIntent = new Intent(this, OpenglActivity.class);
+        startActivity(openglActivityIntent);
     }
 
     /**
