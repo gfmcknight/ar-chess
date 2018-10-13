@@ -17,6 +17,8 @@ set_target_properties(arcore PROPERTIES IMPORTED_LOCATION
         )
 
 
+add_subdirectory(src/main/cpp/glm)
+
 add_library( # Sets the name of the library.
         native-lib
 
@@ -24,8 +26,10 @@ add_library( # Sets the name of the library.
         SHARED
 
         # Provides a relative path to your source file(s).
+        src/main/cpp/util.cpp
         src/main/cpp/NativeContext.h
         src/main/cpp/NativeContext.cpp
+        src/main/cpp/background_renderer.cpp
         src/main/cpp/native-lib.cpp)
 
 # Searches for a specified prebuilt library and stores the path as a
