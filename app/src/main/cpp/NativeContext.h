@@ -16,7 +16,14 @@
 
 class NativeContext {
 public:
-    NativeContext(AAssetManager* assetManager);
+    NativeContext(AAssetManager* assetManager, jobject jContext, JNIEnv *env);
+    ~NativeContext();
+
+    // OnPause is called on the UI thread from the Activity's onPause method.
+    void OnPause();
+
+    // OnResume is called on the UI thread from the Activity's onResume method.
+    void OnResume(void* env, void* context, void* activity);
 
     // OnSurfaceCreated is called on the OpenGL thread when GLSurfaceView
     // is created.

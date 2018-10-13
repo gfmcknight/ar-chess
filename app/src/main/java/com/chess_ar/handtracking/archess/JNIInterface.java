@@ -1,12 +1,13 @@
 package com.chess_ar.handtracking.archess;
 
+import android.content.Context;
 import android.content.res.AssetManager;
 
 public class JNIInterface {
     private static final String TAG = "JniInterface";
     static AssetManager assetManager;
 
-    public native static long createContext(AssetManager assetManager);
+    public native static long createContext(AssetManager assetManager, Context ctx);
     public native static void deleteContext(long id);
 
     /** Allocate OpenGL resources for rendering. */

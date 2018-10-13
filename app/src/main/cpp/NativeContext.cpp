@@ -5,9 +5,80 @@
 #include "NativeContext.h"
 #include "logging.h"
 
-NativeContext::NativeContext(AAssetManager *assetManager) {
+NativeContext::NativeContext(AAssetManager *assetManager, jobject jContext, JNIEnv *env) {
     this->assetManager = assetManager;
+
+    // === ATTENTION!  ATTENTION!  ATTENTION! ===
+    // This method can and will fail in user-facing situations.  Your
+    // application must handle these cases at least somewhat gracefully.  See
+    // HelloAR Java sample code for reasonable behavior.
+    CHECK(ArSession_create(env, jContext, &ar_session_) == AR_SUCCESS);
+    CHECK(ar_session_);
+
+    ArFrame_create(ar_session_, &ar_frame_);
+    CHECK(ar_frame_);
+
+    ArSession_setDisplayGeometry(ar_session_, display_rotation_, width_,
+                                 height_);
 }
+
+NativeContext::~NativeContext() {
+    if (ar_session_ != nullptr) {
+        ArSession_destroy(ar_session_);
+        ArFrame_destroy(ar_frame_);
+    }
+}
+
+void NativeContext::OnPause() {
+    LOGI("OnPause()");
+    if (ar_session_ != nullptr) {
+        ArSession_pause(ar_session_);
+    }
+}
+
+void NativeContext::OnResume(void* env, void* context, void* activity) {
+    LOGI("OnResume()");
+
+    if (ar_session_ == nullptr) {
+        ArInstallStatus install_status;
+        // If install was not yet requested, that means that we are resuming the
+        // activity first time because of explicit user interaction (such as
+        // launching the application)
+        bool user_requested_install = !install_requested_;
+
+        // === ATTENTION!  ATTENTION!  ATTENTION! ===
+        // This method can and will fail in user-facing situations.  Your
+        // application must handle these cases at least somewhat gracefully.  See
+        // HelloAR Java sample code for reasonable behavior.
+        CHECK(ArCoreApk_requestInstall(env, activity, user_requested_install,
+                                       &install_status) == AR_SUCCESS);
+
+        switch (install_status) {
+            case AR_INSTALL_STATUS_INSTALLED:
+                break;
+            case AR_INSTALL_STATUS_INSTALL_REQUESTED:
+                install_requested_ = true;
+                return;
+        }
+
+        // === ATTENTION!  ATTENTION!  ATTENTION! ===
+        // This method can and will fail in user-facing situations.  Your
+        // application must handle these cases at least somewhat gracefully.  See
+        // HelloAR Java sample code for reasonable behavior.
+        CHECK(ArSession_create(env, context, &ar_session_) == AR_SUCCESS);
+        CHECK(ar_session_);
+
+        ArFrame_create(ar_session_, &ar_frame_);
+        CHECK(ar_frame_);
+
+        ArSession_setDisplayGeometry(ar_session_, display_rotation_, width_,
+                                     height_);
+    }
+
+    const ArStatus status = ArSession_resume(ar_session_);
+    CHECK(status == AR_SUCCESS);
+}
+
 
 void NativeContext::OnSurfaceCreated() {
     LOGI("OnSurfaceCreated()");

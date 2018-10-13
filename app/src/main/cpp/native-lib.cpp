@@ -46,8 +46,9 @@ Java_com_chess_1ar_handtracking_archess_MainARActivity_stringFromJNI(
 JNI_CALL(jlong, createContext)(
         JNIEnv *env,
         jclass c,
-        jobject assetManager) {
-    NativeContext* context = new NativeContext(AAssetManager_fromJava(env, assetManager));
+        jobject assetManager,
+        jobject jContext) {
+    NativeContext* context = new NativeContext(AAssetManager_fromJava(env, assetManager), jContext, env);
     return as_id(context);
 }
 
@@ -65,8 +66,8 @@ JNI_CALL(void, onGlSurfaceCreated)
 }
 
 JNI_CALL(void, onDisplayGeometryChanged)
-        (JNIEnv *, jobject, jlong native_application, int display_rotation, int width,
-         int height) {
+        (JNIEnv *, jobject, jlong native_application, jint display_rotation, jint width,
+         jint height) {
     from_id(native_application)
             ->OnDisplayGeometryChanged(display_rotation, width, height);
 }

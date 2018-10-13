@@ -61,7 +61,7 @@ public class OpenglActivity extends Activity implements GLSurfaceView.Renderer {
         surfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 
         JNIInterface.assetManager = getAssets();
-        nativeApplication = JNIInterface.createContext(getAssets());
+        nativeApplication = JNIInterface.createContext(getAssets(), this);
 
         //planeStatusCheckingHandler = new Handler();
     }
