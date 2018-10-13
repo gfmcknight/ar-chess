@@ -10,6 +10,13 @@ cmake_minimum_required(VERSION 3.4.1)
 # You can define multiple libraries, and CMake builds them for you.
 # Gradle automatically packages shared libraries with your APK.
 
+add_library(arcore SHARED IMPORTED)
+set_target_properties(arcore PROPERTIES IMPORTED_LOCATION
+        ${ARCORE_LIBPATH}/${ANDROID_ABI}/libarcore_sdk_c.so
+        INTERFACE_INCLUDE_DIRECTORIES ${ARCORE_INCLUDE}
+        )
+
+
 add_library( # Sets the name of the library.
         native-lib
 
@@ -17,6 +24,8 @@ add_library( # Sets the name of the library.
         SHARED
 
         # Provides a relative path to your source file(s).
+        src/main/cpp/NativeContext.h
+        src/main/cpp/NativeContext.cpp
         src/main/cpp/native-lib.cpp)
 
 # Searches for a specified prebuilt library and stores the path as a
@@ -38,7 +47,10 @@ find_library( # Sets the name of the path variable.
 
 target_link_libraries( # Specifies the target library.
         native-lib
-
+        android
+        log
+        GLESv2
+        arcore
         # Links the target library to the log library
         # included in the NDK.
         ${log-lib})
