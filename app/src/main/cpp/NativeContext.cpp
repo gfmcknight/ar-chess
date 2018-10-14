@@ -14,17 +14,27 @@ static const char *pieceFilename[] = {
         [pt_king]       = "models/King.obj",
 };
 
+static const glm::mat4 pieceMatrix[] = {
+        [pt_pawn]       = glm::scale(glm::mat4(1.0f), glm::vec3(0.001f)),
+        [pt_rook]       = glm::scale(glm::mat4(1.0f), glm::vec3(0.001f)),
+        [pt_bishop]     = glm::scale(glm::mat4(1.0f), glm::vec3(0.001f)),
+        [pt_knight]     = glm::scale(glm::mat4(1.0f), glm::vec3(0.001f)),
+        [pt_queen]      = glm::scale(glm::mat4(1.0f), glm::vec3(0.001f)),
+        [pt_king]       = glm::scale(glm::mat4(1.0f), glm::vec3(0.001f)),
+};
+
 struct Piece {
     PieceType type;
     int x;
     int y;
+    int player;
 };
 
 static std::vector<Piece> pieces;
 
 #define BOARD_SIZE 8
 // [y][x]
-static glm::vec3 board_offsets[BOARD_SIZE][BOARD_SIZE];
+static glm::vec3 boardOffsets[BOARD_SIZE][BOARD_SIZE];
 
 
 NativeContext::NativeContext(AAssetManager *assetManager, jobject jContext, JNIEnv *env) {
@@ -106,12 +116,22 @@ void NativeContext::OnSurfaceCreated() {
 
     for (int y = 0; y < BOARD_SIZE; y++) {
         for (int x = 0; x < BOARD_SIZE; x++) {
-            board_offsets[y][x] = glm::vec3(
-                    ((float)x - (BOARD_SIZE - 1.0f) / 2.0f) * 50.f,
-                    ((float)y - (BOARD_SIZE - 1.0f) / 2.0f) * 50.f,
-                    20.0f
+            boardOffsets[y][x] = glm::vec3(
+                    ((float)x - (BOARD_SIZE - 1.0f) / 2.0f) * 30.f,
+                    0.f,
+                    ((float)y - (BOARD_SIZE - 1.0f) / 2.0f) * 30.f - 50.f
             );
         }
+    }
+
+    static const PieceType row[] = {
+            pt_rook, pt_knight, pt_bishop, pt_queen, pt_king, pt_bishop, pt_knight, pt_rook
+    };
+    for (int x = 0; x < sizeof(row) / sizeof(row[0]); x++) {
+        pieces.push_back((Piece){.type = pt_pawn, .x = x, .y = 1, .player = 0});
+        pieces.push_back((Piece){.type = pt_pawn, .x = x, .y = 6, .player = 1});
+        pieces.push_back((Piece){.type = row[x], .x = x, .y = 0, .player = 0});
+        pieces.push_back((Piece){.type = row[x], .x = x, .y = 7, .player = 1});
     }
 }
 
@@ -132,11 +152,16 @@ void NativeContext::RenderBoard(glm::mat4 projection_mat, glm::mat4 view_mat, fl
 }
 
 void NativeContext::RenderPieces(glm::mat4 projection_mat, glm::mat4 view_mat, float color_correction[4]) {
-    glm::mat4 model_base = glm::scale(glm::mat4(1.0f), glm::vec3(0.001f));
     float c[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+    /*glm::mat4 model_base = glm::scale(glm::mat4(1.0f), glm::vec3(0.001f));
     for (int t = 0; t < (int)pt_MAX; t++) {
         glm::mat4 model_mat = glm::translate(model_base, glm::vec3(50.f * t, 50.f * t, 50.f * t));
         pieceRenderers[t].Draw(projection_mat, view_mat, model_mat, color_correction, c);
+    }*/
+
+    for (auto &p : pieces) {
+        glm::mat4 model_mat = glm::translate(pieceMatrix[p.type], boardOffsets[p.y][p.x]);
+        pieceRenderers[p.type].Draw(projection_mat, view_mat, model_mat, color_correction, c);
     }
 }
 
@@ -202,8 +227,8 @@ void NativeContext::OnDrawFrame() {
     ArLightEstimate_destroy(ar_light_estimate);
     ar_light_estimate = nullptr;
 
-    RenderBoard();
-    RenderPieces();
+    RenderBoard(projection_mat, view_mat, color_correction);
+    RenderPieces(projection_mat, view_mat, color_correction);
 
     /*
     // Render Andy objects.
