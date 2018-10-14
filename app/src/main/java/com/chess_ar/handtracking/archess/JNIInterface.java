@@ -24,6 +24,12 @@ public class JNIInterface {
     /** Allocate OpenGL resources for rendering. */
     public static native void onGlSurfaceCreated(long nativeApplication);
 
+    /** Get plane count in current session. Used to disable the "searching for surfaces" snackbar. */
+    public static native boolean hasDetectedPlanes(long nativeApplication);
+
+    /** OnTouch event, called on the OpenGL thread. */
+    public static native void onTouched(long nativeApplication, float x, float y);
+
     /**
      * Called on the OpenGL thread before onGlSurfaceDrawFrame when the view port width, height, or
      * display rotation may have changed.

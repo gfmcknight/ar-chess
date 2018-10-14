@@ -88,3 +88,14 @@ JNI_CALL(void, onGlSurfaceDrawFrame)
     from_id(native_application)->OnDrawFrame();
 }
 
+JNI_CALL(jboolean, hasDetectedPlanes)
+(JNIEnv *, jclass, jlong native_application) {
+return static_cast<jboolean>(
+    from_id(native_application)->HasDetectedPlanes() ? JNI_TRUE : JNI_FALSE);
+}
+
+JNI_CALL(void, onTouched)
+        (JNIEnv *, jclass, jlong native_application, jfloat x, jfloat y) {
+    from_id(native_application)->OnTouched(x, y);
+}
+

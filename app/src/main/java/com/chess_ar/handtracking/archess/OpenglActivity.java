@@ -6,9 +6,11 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -27,6 +29,29 @@ public class OpenglActivity extends Activity
     private long nativeApplication;
     private GestureDetector gestureDetector;
 
+    /*private Snackbar loadingMessageSnackbar;
+    private Handler planeStatusCheckingHandler;
+    private final Runnable planeStatusCheckingRunnable =
+            new Runnable() {
+                @Override
+                public void run() {
+                    // The runnable is executed on main UI thread.
+                    try {
+                        if (JNIInterface.hasDetectedPlanes(nativeApplication)) {
+                            if (loadingMessageSnackbar != null) {
+                                loadingMessageSnackbar.dismiss();
+                            }
+                            loadingMessageSnackbar = null;
+                        } else {
+                            planeStatusCheckingHandler.postDelayed(
+                                    planeStatusCheckingRunnable, SNACKBAR_UPDATE_INTERVAL_MILLIS);
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, e.getMessage());
+                    }
+                }
+            };*/
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,14 +60,14 @@ public class OpenglActivity extends Activity
         surfaceView = (GLSurfaceView) findViewById(R.id.surfaceview);
 
         // Set up tap listener.
-        /*gestureDetector =
+        gestureDetector =
                 new GestureDetector(
                         this,
                         new GestureDetector.SimpleOnGestureListener() {
                             @Override
                             public boolean onSingleTapUp(final MotionEvent e) {
                                 surfaceView.queueEvent(
-                                        () -> JniInterface.onTouched(nativeApplication, e.getX(), e.getY()));
+                                        () -> JNIInterface.onTouched(nativeApplication, e.getX(), e.getY()));
                                 return true;
                             }
 
@@ -53,7 +78,7 @@ public class OpenglActivity extends Activity
                         });
 
         surfaceView.setOnTouchListener(
-                (View v, MotionEvent event) -> gestureDetector.onTouchEvent(event));*/
+                (View v, MotionEvent event) -> gestureDetector.onTouchEvent(event));
 
         // Set up renderer.
         surfaceView.setPreserveEGLContextOnPause(true);
@@ -113,6 +138,24 @@ public class OpenglActivity extends Activity
         viewportWidth = width;
         viewportHeight = height;
         viewportChanged = true;
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            // Standard Android full-screen functionality.
+            getWindow()
+                    .getDecorView()
+                    .setSystemUiVisibility(
+                            View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                                    | View.SYSTEM_UI_FLAG_FULLSCREEN
+                                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
     }
 
     @Override

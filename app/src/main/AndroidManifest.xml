@@ -22,7 +22,8 @@
             android:name="com.google.ar.core"
             android:value="required" />
 
-        <activity android:name=".OpenglActivity"></activity>
+        <activity android:name=".OpenglActivity"
+            android:screenOrientation="portrait"></activity>
     </application>
 
 </manifest>
