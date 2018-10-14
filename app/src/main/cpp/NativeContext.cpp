@@ -419,9 +419,10 @@ uint8_t * NativeContext::getFilterTexture(const glm::mat4 &projection_mat) const
                            *(cloudData + i + 1),
                            *(cloudData + i + 2));
 
-            glm::vec3 point2d = glm::project(point3d, glm::mat4(1.0f), projection_mat, glm::vec4(0, 0, 1, 1));
-            int x = (int) (point2d.x * FILTER_WIDTH);
-            int y = (int) (point2d.y * FILTER_HEIGHT);
+            glm::vec3 point2d = glm::project(point3d, glm::mat4(1.0f), projection_mat, glm::vec4(0, 0, FILTER_WIDTH, FILTER_HEIGHT));
+            int x = (int)point2d.x;
+            int y = (int)point2d.y;
+            if (x < 0 || x >= FILTER_WIDTH || y < 0 || y >= FILTER_HEIGHT) continue;
             filter[4 * (x + y * FILTER_WIDTH)    ] = 0XFF;
             filter[4 * (x + y * FILTER_WIDTH) + 1] = 0XFF;
             filter[4 * (x + y * FILTER_WIDTH) + 2] = 0XFF;

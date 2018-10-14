@@ -133,7 +133,7 @@ void ObjRenderer::Draw(const glm::mat4& projection_mat, const glm::mat4& view_ma
   glUniform1i(uniform_mask_, 1);
   glBindTexture(GL_TEXTURE_2D, mask_texture_id_);
   //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, maskWidth, maskHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, &(blah[0]));
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, maskWidth, maskHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, mask);
+  //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, maskWidth, maskHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, mask);
 
   glActiveTexture(GL_TEXTURE0);
   glUniform1i(uniform_texture_, 0);
