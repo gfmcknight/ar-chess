@@ -18,6 +18,8 @@
 #include "plane_renderer.h"
 #include "glm.h"
 
+#define BOARD_SIZE 8
+
 enum PieceType {
     pt_pawn,
     pt_rook,
@@ -29,7 +31,6 @@ enum PieceType {
 };
 
 static const int FILTER_WIDTH = 480;
-
 static const int FILTER_HEIGHT = 270;
 
 class NativeContext {
@@ -78,6 +79,8 @@ private:
     int height_ = 1;
     int display_rotation_ = 0;
     int32_t plane_count_ = 0;
+
+    PieceType board[BOARD_SIZE][BOARD_SIZE];
 
     // The first plane is always rendered in white, if this is true then a plane
     // at some point has been found.

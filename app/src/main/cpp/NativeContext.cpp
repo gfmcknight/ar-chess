@@ -32,16 +32,41 @@ struct Piece {
 
 static std::vector<Piece> pieces;
 
-#define BOARD_SIZE 8
+static uint8_t filter[FILTER_WIDTH * FILTER_HEIGHT * 4];
+
 // [y][x]
 static glm::vec3 boardOffsets[BOARD_SIZE][BOARD_SIZE];
 
 static const glm::vec3 kWhite = {255, 255, 255};
 
-
 NativeContext::NativeContext(AAssetManager *assetManager, jobject jContext, JNIEnv *env) {
     this->assetManager = assetManager;
+    for (int i = 0; i < BOARD_SIZE; i++) {
+        for (int j = 0; j < BOARD_SIZE; j++) {
+            board[i][j] = pt_MAX;
+            if (j == 1 || j == 6) {
+                board[i][j] = pt_pawn;
+            }
+        }
+    }
 
+    board[0][0] = pt_rook;
+    board[1][0] = pt_knight;
+    board[2][0] = pt_bishop;
+    board[3][0] = pt_queen;
+    board[4][0] = pt_king;
+    board[5][0] = pt_bishop;
+    board[6][0] = pt_knight;
+    board[7][0] = pt_rook;
+
+    board[0][7] = pt_rook;
+    board[1][7] = pt_knight;
+    board[2][7] = pt_bishop;
+    board[3][7] = pt_queen;
+    board[4][7] = pt_king;
+    board[5][7] = pt_bishop;
+    board[6][7] = pt_knight;
+    board[7][7] = pt_rook;
 }
 
 NativeContext::~NativeContext() {
@@ -169,10 +194,14 @@ void NativeContext::RenderPieces(glm::mat4 &projection_mat, glm::mat4 &view_mat,
         pieceRenderers[t].Draw(projection_mat, view_mat, model_mat, color_correction, c);
     }*/
 
-    for (auto &p : pieces) {
-        glm::mat4 matrix = glm::translate(pieceMatrix[p.type], boardOffsets[p.y][p.x]);
-        matrix = model_mat * matrix;
-        pieceRenderers[p.type].Draw(projection_mat, view_mat, matrix, color_correction, c);
+
+    for (int x = 0; x < BOARD_SIZE; x++) {
+        for (int y = 0; y < BOARD_SIZE; y++) {
+            if (board[x][y] == pt_MAX) continue;
+            glm::mat4 matrix = glm::translate(pieceMatrix[board[x][y]], boardOffsets[y][x]);
+            matrix = model_mat * matrix;
+            pieceRenderers[board[x][y]].Draw(projection_mat, view_mat, matrix, color_correction, c);
+        }
     }
 }
 
@@ -267,8 +296,6 @@ void NativeContext::OnDrawFrame() {
 
             RenderBoard(projection_mat, view_mat, model_mat, color_correction);
             RenderPieces(projection_mat, view_mat, model_mat, color_correction);
-
-            free(filter);
         }
     }
 
@@ -376,25 +403,27 @@ uint8_t * NativeContext::getFilterTexture(const glm::mat4 &projection_mat) const
     ArPointCloud_getData(ar_session_, pointCloud, &cloudData);
     ArPointCloud_getNumberOfPoints(ar_session_, pointCloud, &numberOfPoints);
 
-    uint8_t* buffer = (uint8_t*) calloc(sizeof(uint8_t),
-            FILTER_WIDTH * FILTER_HEIGHT);
+    memset(filter, 0, FILTER_WIDTH * FILTER_HEIGHT * 4 * sizeof(uint8_t));
 
     for (int i = 0; i < numberOfPoints; i += 4) {
         if (*(cloudData + i + 1) >= rawPose[6]) {
-             const glm::vec3 point3d = glm::vec3(
-                            *(cloudData + i),
-                            *(cloudData + i + 1),
-                            *(cloudData + i + 2));
+            const glm::vec3 point3d = glm::vec3(
+                           *(cloudData + i),
+                           *(cloudData + i + 1),
+                           *(cloudData + i + 2));
 
-             glm::vec3 point2d = glm::project(point3d, glm::mat4(1.0f), projection_mat, glm::vec4(0, 0, 1, 1));
-             int x = (int) (point2d.x * FILTER_WIDTH);
-             int y = (int) (point2d.y * FILTER_HEIGHT);
-             buffer[x + y * FILTER_WIDTH] = 0XFF;
+            glm::vec3 point2d = glm::project(point3d, glm::mat4(1.0f), projection_mat, glm::vec4(0, 0, 1, 1));
+            int x = (int) (point2d.x * FILTER_WIDTH);
+            int y = (int) (point2d.y * FILTER_HEIGHT);
+            filter[4 * (x + y * FILTER_WIDTH)    ] = 0XFF;
+            filter[4 * (x + y * FILTER_WIDTH) + 1] = 0XFF;
+            filter[4 * (x + y * FILTER_WIDTH) + 2] = 0XFF;
+            filter[4 * (x + y * FILTER_WIDTH) + 3] = 0XFF;
         }
     }
 
     ArPointCloud_release(pointCloud);
-    return buffer;
+    return filter;
 }
 
 void NativeContext::OnTouched(float x, float y) {
