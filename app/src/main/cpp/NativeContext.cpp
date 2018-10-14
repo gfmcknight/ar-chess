@@ -15,12 +15,12 @@ static const char *pieceFilename[] = {
 };
 
 static const glm::mat4 pieceMatrix[] = {
-        [pt_pawn]       = glm::scale(glm::mat4(1.0f), glm::vec3(0.001f)),
-        [pt_rook]       = glm::scale(glm::mat4(1.0f), glm::vec3(0.001f)),
-        [pt_bishop]     = glm::scale(glm::mat4(1.0f), glm::vec3(0.001f)),
-        [pt_knight]     = glm::translate(glm::scale(glm::mat4(1.0f), glm::vec3(0.001f)), glm::vec3(0, 7.f, -1.5f)),
-        [pt_queen]      = glm::translate(glm::scale(glm::mat4(1.0f), glm::vec3(0.0025f)), glm::vec3(0, 0, 0)),
-        [pt_king]       = glm::scale(glm::mat4(1.0f), glm::vec3(0.001f)),
+        [pt_pawn]       = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f)),
+        [pt_rook]       = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f)),
+        [pt_bishop]     = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f)),
+        [pt_knight]     = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f)),
+        [pt_queen]      = glm::scale(glm::mat4(1.0f), glm::vec3(1.0)),
+        [pt_king]       = glm::scale(glm::mat4(1.0f), glm::vec3(1.0))
 };
 
 struct Piece {
