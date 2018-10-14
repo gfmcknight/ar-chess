@@ -88,8 +88,15 @@ void NativeContext::OnSurfaceCreated() {
     plane_renderer_.InitializeGlContent(assetManager);*/
 
     for (int t = 0; t < (int)pt_MAX; t++) {
-        pieceRenderers[t].InitializeGlContent(assetManager, pieceFilename[t], "models/Wood.png");
+        switch (t) {
+            //case pt_queen:
+
+            //    break;
+            default:
+                pieceRenderers[t].InitializeGlContent(assetManager, pieceFilename[t], "models/Wood.png");
+        }
     }
+    //pieceRenderers[pt_king].InitializeGlContent(assetManager, pieceFilename[pt_king], "models/Wood.png");
 }
 
 void NativeContext::OnDisplayGeometryChanged(int display_rotation,
@@ -166,9 +173,13 @@ void NativeContext::OnDrawFrame() {
     ArLightEstimate_destroy(ar_light_estimate);
     ar_light_estimate = nullptr;
 
-    glm::mat4 model_mat(1.0f);
+    glm::mat4 model_base = glm::scale(glm::mat4(1.0f), glm::vec3(0.001f));
     float c[4] = {1.0f, 1.0f, 1.0f, 1.0f};
-    pieceRenderers[pt_queen].Draw(projection_mat, view_mat, model_mat, color_correction, c);
+    for (int t = 0; t < (int)pt_MAX; t++) {
+        //if (t == pt_king) continue;
+        glm::mat4 model_mat = glm::translate(model_base, glm::vec3(50.f * t, 50.f * t, 50.f * t));
+        pieceRenderers[t].Draw(projection_mat, view_mat, model_mat, color_correction, c);
+    }
 
     /*
     // Render Andy objects.
