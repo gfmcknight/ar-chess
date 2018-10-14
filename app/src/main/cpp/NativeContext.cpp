@@ -120,9 +120,9 @@ void NativeContext::OnSurfaceCreated() {
     for (int y = 0; y < BOARD_SIZE; y++) {
         for (int x = 0; x < BOARD_SIZE; x++) {
             boardOffsets[y][x] = glm::vec3(
-                    ((float)x - (BOARD_SIZE - 1.0f) / 2.0f) * 30.f,
+                    ((float)x - (BOARD_SIZE - 1.0f) / 2.0f) * 0.03f,
                     0.f,
-                    ((float)y - (BOARD_SIZE - 1.0f) / 2.0f) * 30.f - 50.f
+                    ((float)y - (BOARD_SIZE - 1.0f) / 2.0f) * 0.03f - 0.05f
             );
         }
     }
