@@ -67,6 +67,7 @@ private:
     //ObjRenderer andy_renderer_;
 
     hello_ar::ObjRenderer pieceRenderers[pt_MAX];
+    hello_ar::ObjRenderer boardRenderer;
 
     void RenderBoard(glm::mat4 projection_mat, glm::mat4 view_mat, float color_correction[4]);
     void RenderPieces(glm::mat4 projection_mat, glm::mat4 view_mat, float color_correction[4]);

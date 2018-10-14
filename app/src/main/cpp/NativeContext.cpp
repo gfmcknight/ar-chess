@@ -124,6 +124,8 @@ void NativeContext::OnSurfaceCreated() {
         }
     }
 
+    boardRenderer.InitializeGlContent(assetManager,"models/Board.obj", "models/Board.png");
+
     static const PieceType row[] = {
             pt_rook, pt_knight, pt_bishop, pt_queen, pt_king, pt_bishop, pt_knight, pt_rook
     };
@@ -148,7 +150,9 @@ void NativeContext::OnDisplayGeometryChanged(int display_rotation,
 }
 
 void NativeContext::RenderBoard(glm::mat4 projection_mat, glm::mat4 view_mat, float color_correction[4]) {
-
+    float c[] = {1.0f, 1.0f, 1.0f, 1.0f};
+    glm::mat4 model_mat = glm::translate(glm::scale(glm::mat4(1.0f), glm::vec3(0.00245)), glm::vec3(0, 0, -22.0));
+    boardRenderer.Draw(projection_mat, view_mat, model_mat, color_correction, c);
 }
 
 void NativeContext::RenderPieces(glm::mat4 projection_mat, glm::mat4 view_mat, float color_correction[4]) {
