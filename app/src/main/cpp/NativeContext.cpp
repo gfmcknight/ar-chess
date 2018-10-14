@@ -460,12 +460,15 @@ void NativeContext::OnTouched(float x, float y) {
         float bestDistance2 = MAXFLOAT;
         float bestScreenX = 0, bestScreenY = 0;
         int bestBoardX = 0, bestBoardY = 0;
+        std::string line;
         for (int bx = 0; bx < BOARD_SIZE; bx++) {
+            line = "" + std::to_string(bx) + "\t: ";
             for (int by = 0; by < BOARD_SIZE; by++) {
                 glm::mat4 matrix = glm::translate(pieceMatrix[board[bx][by]],
-                        boardOffsets[by][bx] + glm::vec3(0, 0, -22.f));
+                        boardOffsets[by][bx] + glm::vec3(0, 0, -0.022f));
                 matrix = last_board_model_ * matrix;
                 glm::vec3 screenCoord = glm::project(glm::vec3(0.0f), matrix, PV, viewport);
+                line += "(" + std::to_string(screenCoord.x) + ", " + std::to_string(screenCoord.y) + ")\t";
                 float distanceX = x - screenCoord.x;
                 float distanceY = y - screenCoord.y;
                 float distance2 = distanceX * distanceX + distanceY * distanceY;
@@ -477,6 +480,7 @@ void NativeContext::OnTouched(float x, float y) {
                     bestScreenY = screenCoord.y;
                 }
             }
+            LOGI("did it %s\n", line.c_str());
         }
 
         if (sqrt(bestDistance2) < 0.4 * (float)(width + height) / 2.0) {
