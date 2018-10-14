@@ -14,6 +14,19 @@ static const char *pieceFilename[] = {
         [pt_king]       = "models/King.obj",
 };
 
+struct Piece {
+    PieceType type;
+    int x;
+    int y;
+};
+
+static struct std::vector<Piece> pieces;
+
+#define BOARD_SIZE 8
+// [y][x]
+static glm::vec3 board_offsets[BOARD_SIZE][BOARD_SIZE];
+
+
 NativeContext::NativeContext(AAssetManager *assetManager, jobject jContext, JNIEnv *env) {
     this->assetManager = assetManager;
 
@@ -88,15 +101,18 @@ void NativeContext::OnSurfaceCreated() {
     plane_renderer_.InitializeGlContent(assetManager);*/
 
     for (int t = 0; t < (int)pt_MAX; t++) {
-        switch (t) {
-            //case pt_queen:
+        pieceRenderers[t].InitializeGlContent(assetManager, pieceFilename[t], "models/Wood.png");
+    }
 
-            //    break;
-            default:
-                pieceRenderers[t].InitializeGlContent(assetManager, pieceFilename[t], "models/Wood.png");
+    for (int y = 0; y < BOARD_SIZE; y++) {
+        for (int x = 0; x < BOARD_SIZE; x++) {
+            board_offsets[y][x] = glm::vec3(
+                    ((float)x - (BOARD_SIZE - 1.0f) / 2.0f) * 50.f,
+                    ((float)y - (BOARD_SIZE - 1.0f) / 2.0f) * 50.f,
+                    20.0f
+            );
         }
     }
-    //pieceRenderers[pt_king].InitializeGlContent(assetManager, pieceFilename[pt_king], "models/Wood.png");
 }
 
 void NativeContext::OnDisplayGeometryChanged(int display_rotation,
@@ -108,6 +124,20 @@ void NativeContext::OnDisplayGeometryChanged(int display_rotation,
     height_ = height;
     if (ar_session_ != nullptr) {
         ArSession_setDisplayGeometry(ar_session_, display_rotation, width, height);
+    }
+}
+
+void NativeContext::RenderBoard(glm::mat4 projection_mat, glm::mat4 view_mat, float color_correction[4]) {
+
+}
+
+void NativeContext::RenderPieces(glm::mat4 projection_mat, glm::mat4 view_mat, float color_correction[4]) {
+    glm::mat4 model_base = glm::scale(glm::mat4(1.0f), glm::vec3(0.001f));
+    float c[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+    for (int t = 0; t < (int)pt_MAX; t++) {
+        //if (t == pt_king) continue;
+        glm::mat4 model_mat = glm::translate(model_base, glm::vec3(50.f * t, 50.f * t, 50.f * t));
+        pieceRenderers[t].Draw(projection_mat, view_mat, model_mat, color_correction, c);
     }
 }
 
@@ -173,13 +203,8 @@ void NativeContext::OnDrawFrame() {
     ArLightEstimate_destroy(ar_light_estimate);
     ar_light_estimate = nullptr;
 
-    glm::mat4 model_base = glm::scale(glm::mat4(1.0f), glm::vec3(0.001f));
-    float c[4] = {1.0f, 1.0f, 1.0f, 1.0f};
-    for (int t = 0; t < (int)pt_MAX; t++) {
-        //if (t == pt_king) continue;
-        glm::mat4 model_mat = glm::translate(model_base, glm::vec3(50.f * t, 50.f * t, 50.f * t));
-        pieceRenderers[t].Draw(projection_mat, view_mat, model_mat, color_correction, c);
-    }
+    RenderBoard();
+    RenderPieces();
 
     /*
     // Render Andy objects.
