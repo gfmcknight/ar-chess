@@ -188,6 +188,22 @@ void NativeContext::OnDrawFrame() {
 
     if (ar_session_ == nullptr) return;
 
+    /*
+    // Acquire the image from the camera
+    ArImage* cameraImage = nullptr;
+    const AImage* ndkCameraImage = nullptr;
+    ArFrame_acquireCameraImage(ar_session_, ar_frame_, &cameraImage);
+    ArImage_getNdkImage(cameraImage, &ndkCameraImage);
+    int format;
+    AImage_getFormat(ndkCameraImage, &format);
+
+    uint8_t* dataptr = nullptr;
+    int datalength  = 0;
+    AImage_getPlaneData(ndkCameraImage, 0, &dataptr, &datalength);
+
+    ArImage_release(cameraImage);
+     */
+
     ArSession_setCameraTextureName(ar_session_,
                                    background_renderer_.GetTextureId());
 
@@ -247,9 +263,12 @@ void NativeContext::OnDrawFrame() {
             glm::mat4 model_mat(1.0f);
             util::GetTransformMatrixFromAnchor(*(anchors_[0]), ar_session_,
                                                &model_mat);
+            uint8_t* filter = getFilterTexture(projection_mat);
 
             RenderBoard(projection_mat, view_mat, model_mat, color_correction);
             RenderPieces(projection_mat, view_mat, model_mat, color_correction);
+
+            free(filter);
         }
     }
 
@@ -341,6 +360,41 @@ void NativeContext::OnDrawFrame() {
                                    ar_point_cloud);
         ArPointCloud_release(ar_point_cloud);
     }*/
+}
+
+uint8_t * NativeContext::getFilterTexture(const glm::mat4 &projection_mat) const {
+    util::ScopedArPose pose(ar_session_);
+    ArAnchor_getPose(ar_session_, anchors_[0], pose.GetArPose());
+    float rawPose[7];
+    ArPose_getPoseRaw(ar_session_, pose.GetArPose(), rawPose);
+
+    ArPointCloud* pointCloud;
+    const float* cloudData = nullptr;
+    int numberOfPoints = 0;
+
+    ArFrame_acquirePointCloud(ar_session_, ar_frame_, &pointCloud);
+    ArPointCloud_getData(ar_session_, pointCloud, &cloudData);
+    ArPointCloud_getNumberOfPoints(ar_session_, pointCloud, &numberOfPoints);
+
+    uint8_t* buffer = (uint8_t*) calloc(sizeof(uint8_t),
+            FILTER_WIDTH * FILTER_HEIGHT);
+
+    for (int i = 0; i < numberOfPoints; i += 4) {
+        if (*(cloudData + i + 1) >= rawPose[6]) {
+             const glm::vec3 point3d = glm::vec3(
+                            *(cloudData + i),
+                            *(cloudData + i + 1),
+                            *(cloudData + i + 2));
+
+             glm::vec3 point2d = glm::project(point3d, glm::mat4(1.0f), projection_mat, glm::vec4(0, 0, 1, 1));
+             int x = (int) (point2d.x * FILTER_WIDTH);
+             int y = (int) (point2d.y * FILTER_HEIGHT);
+             buffer[x + y * FILTER_WIDTH] = 0XFF;
+        }
+    }
+
+    ArPointCloud_release(pointCloud);
+    return buffer;
 }
 
 void NativeContext::OnTouched(float x, float y) {

@@ -7,7 +7,7 @@
 
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
-
+#include <media/NdkImage.h>
 #include <android/asset_manager.h>
 
 #include <unordered_map>
@@ -27,6 +27,10 @@ enum PieceType {
     pt_king,
     pt_MAX
 };
+
+static const int FILTER_WIDTH = 480;
+
+static const int FILTER_HEIGHT = 270;
 
 class NativeContext {
 public:
@@ -94,6 +98,8 @@ private:
                      glm::mat4 &model_mat, float color_correction[4]);
     void RenderPieces(glm::mat4 &projection_mat, glm::mat4 &view_mat,
                       glm::mat4 &model_mat, float color_correction[4]);
+
+    uint8_t * getFilterTexture(const glm::mat4 &projection_mat) const;
 };
 
 
