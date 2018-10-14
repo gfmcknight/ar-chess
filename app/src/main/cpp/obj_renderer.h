@@ -51,7 +51,10 @@ class ObjRenderer {
             const glm::mat4& model_mat, const float* color_correction4,
             const float* object_color4) const;
 
+  void RecenterVertices();
+
  private:
+
   // Shader material lighting pateremrs
   float ambient_ = 0.0f;
   float diffuse_ = 2.0f;

@@ -19,7 +19,7 @@ static const glm::mat4 pieceMatrix[] = {
         [pt_rook]       = glm::scale(glm::mat4(1.0f), glm::vec3(0.001f)),
         [pt_bishop]     = glm::scale(glm::mat4(1.0f), glm::vec3(0.001f)),
         [pt_knight]     = glm::translate(glm::scale(glm::mat4(1.0f), glm::vec3(0.001f)), glm::vec3(0, 7.f, -1.5f)),
-        [pt_queen]      = glm::translate(glm::scale(glm::mat4(1.0f), glm::vec3(0.0025f)), glm::vec3(0, 0, -15.f)),
+        [pt_queen]      = glm::translate(glm::scale(glm::mat4(1.0f), glm::vec3(0.0025f)), glm::vec3(0, 0, 0)),
         [pt_king]       = glm::scale(glm::mat4(1.0f), glm::vec3(0.001f)),
 };
 
@@ -114,6 +114,7 @@ void NativeContext::OnSurfaceCreated() {
 
     for (int t = 0; t < (int)pt_MAX; t++) {
         pieceRenderers[t].InitializeGlContent(assetManager, pieceFilename[t], "models/Wood.png");
+        //pieceRenderers[t].RecenterVertices();
     }
 
     for (int y = 0; y < BOARD_SIZE; y++) {

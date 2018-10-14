@@ -71,6 +71,28 @@ void ObjRenderer::InitializeGlContent(AAssetManager* asset_manager,
   util::CheckGlError("obj_renderer::InitializeGlContent()");
 }
 
+void ObjRenderer::RecenterVertices() {
+  GLfloat max[3], min[3];
+  for (int i = 0; i < vertices_.size(); i += 3) {
+    for (int j = 0; j < 3; j++) {
+      GLfloat val = vertices_[i + j];
+      if (min[j] > val) min[j] = val;
+      if (max[j] < val) max[j] = val;
+    }
+  }
+
+  GLfloat adjustment[3];
+  adjustment[0] = (min[0] + max[0]) / -2.0f;
+  adjustment[1] = -min[1];
+  adjustment[2] = (min[2] + max[2]) / -2.0f;
+
+  for (int i = 0; i < vertices_.size(); i += 3) {
+    for (int j = 0; j < 3; j++) {
+      vertices_[i + j] += adjustment[j];
+    }
+  }
+}
+
 void ObjRenderer::SetMaterialProperty(float ambient, float diffuse,
                                       float specular, float specular_power) {
   ambient_ = ambient;
