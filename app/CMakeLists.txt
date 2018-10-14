@@ -16,8 +16,20 @@ set_target_properties(arcore PROPERTIES IMPORTED_LOCATION
         INTERFACE_INCLUDE_DIRECTORIES ${ARCORE_INCLUDE}
         )
 
-
 add_subdirectory(src/main/cpp/glm)
+
+set( OpenCV_DIR ../../OpenCV-android-sdk/sdk/native/jni )
+
+find_package(OpenCV REQUIRED )
+if(OpenCV_FOUND)
+    include_directories(${OpenCV_INCLUDE_DIRS})
+    message(STATUS "OpenCV library status:")
+    message(STATUS "    version: ${OpenCV_VERSION}")
+    message(STATUS "    libraries: ${OpenCV_LIBS}")
+    message(STATUS "    include path: ${OpenCV_INCLUDE_DIRS}")
+else(OpenCV_FOUND)
+    message(FATAL_ERROR "OpenCV library not found")
+endif(OpenCV_FOUND)
 
 add_library( # Sets the name of the library.
         native-lib
@@ -57,6 +69,7 @@ target_link_libraries( # Specifies the target library.
         log
         GLESv2
         arcore
+        ${OpenCV_LIBS}
         # Links the target library to the log library
         # included in the NDK.
         ${log-lib})
