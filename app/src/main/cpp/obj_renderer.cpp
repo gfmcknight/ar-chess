@@ -125,25 +125,15 @@ void ObjRenderer::Draw(const glm::mat4& projection_mat, const glm::mat4& view_ma
   }
 
   glEnable(GL_BLEND);
+  //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   glUseProgram(shader_program_);
-
-  std::vector<uint8_t> blah;
-  int numPix = maskWidth * maskHeight;
-  blah.resize(numPix * 3);
-  int o = 0;
-  for (int i = 0; i < numPix; i++) {
-    uint8_t c = mask[i];
-    blah[o++] = c;
-    blah[o++] = c;
-    blah[o++] = c;
-  }
 
   glActiveTexture(GL_TEXTURE1);
   glUniform1i(uniform_mask_, 1);
   glBindTexture(GL_TEXTURE_2D, mask_texture_id_);
   //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, maskWidth, maskHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, &(blah[0]));
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, maskWidth, maskHeight, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, mask);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, maskWidth, maskHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, mask);
 
   glActiveTexture(GL_TEXTURE0);
   glUniform1i(uniform_texture_, 0);
