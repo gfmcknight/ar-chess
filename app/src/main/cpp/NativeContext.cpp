@@ -20,7 +20,7 @@ struct Piece {
     int y;
 };
 
-static struct std::vector<Piece> pieces;
+static std::vector<Piece> pieces;
 
 #define BOARD_SIZE 8
 // [y][x]
@@ -135,7 +135,6 @@ void NativeContext::RenderPieces(glm::mat4 projection_mat, glm::mat4 view_mat, f
     glm::mat4 model_base = glm::scale(glm::mat4(1.0f), glm::vec3(0.001f));
     float c[4] = {1.0f, 1.0f, 1.0f, 1.0f};
     for (int t = 0; t < (int)pt_MAX; t++) {
-        //if (t == pt_king) continue;
         glm::mat4 model_mat = glm::translate(model_base, glm::vec3(50.f * t, 50.f * t, 50.f * t));
         pieceRenderers[t].Draw(projection_mat, view_mat, model_mat, color_correction, c);
     }
