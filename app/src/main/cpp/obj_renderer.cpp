@@ -17,6 +17,8 @@
 #include "obj_renderer.h"
 #include "util.h"
 
+#include <GLES3/gl3.h>
+
 namespace hello_ar {
 namespace {
 const glm::vec4 kLightDirection(0.0f, 1.0f, 0.0f, 0.0f);
@@ -37,6 +39,8 @@ void ObjRenderer::InitializeGlContent(AAssetManager* asset_manager,
       glGetUniformLocation(shader_program_, "u_ModelViewProjection");
   uniform_mv_mat_ = glGetUniformLocation(shader_program_, "u_ModelView");
   uniform_texture_ = glGetUniformLocation(shader_program_, "u_Texture");
+  uniform_mask_ = glGetUniformLocation(shader_program_, "u_MyMask");
+  util::CheckGlError("obj_renderer::InitializeGlContent() after getting mask uniform");
 
   uniform_lighting_param_ =
       glGetUniformLocation(shader_program_, "u_LightingParameters");
@@ -64,6 +68,15 @@ void ObjRenderer::InitializeGlContent(AAssetManager* asset_manager,
   glGenerateMipmap(GL_TEXTURE_2D);
 
   glBindTexture(GL_TEXTURE_2D, 0);
+
+    glGenTextures(1, &mask_texture_id_);
+    glBindTexture(GL_TEXTURE_2D, mask_texture_id_);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
 
   util::LoadObjFile(obj_file_name, asset_manager, &vertices_, &normals_, &uvs_,
                     &indices_);
@@ -101,16 +114,36 @@ void ObjRenderer::SetMaterialProperty(float ambient, float diffuse,
   specular_power_ = specular_power;
 }
 
-void ObjRenderer::Draw(const glm::mat4& projection_mat,
-                       const glm::mat4& view_mat, const glm::mat4& model_mat,
-                       const float* color_correction4,
-                       const float* object_color4) const {
+void ObjRenderer::Draw(const glm::mat4& projection_mat, const glm::mat4& view_mat,
+              const glm::mat4& model_mat, const float* color_correction4,
+              const float* object_color4, int maskWidth, int maskHeight,
+              uint8_t *mask) const {
+
   if (!shader_program_) {
     LOGE("shader_program is null.");
     return;
   }
 
+  glEnable(GL_BLEND);
+
   glUseProgram(shader_program_);
+
+  std::vector<uint8_t> blah;
+  int numPix = maskWidth * maskHeight;
+  blah.resize(numPix * 3);
+  int o = 0;
+  for (int i = 0; i < numPix; i++) {
+    uint8_t c = mask[i];
+    blah[o++] = c;
+    blah[o++] = c;
+    blah[o++] = c;
+  }
+
+  glActiveTexture(GL_TEXTURE1);
+  glUniform1i(uniform_mask_, 1);
+  glBindTexture(GL_TEXTURE_2D, mask_texture_id_);
+  //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, maskWidth, maskHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, &(blah[0]));
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, maskWidth, maskHeight, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, mask);
 
   glActiveTexture(GL_TEXTURE0);
   glUniform1i(uniform_texture_, 0);

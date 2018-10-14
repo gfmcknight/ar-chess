@@ -163,6 +163,8 @@ void NativeContext::OnSurfaceCreated() {
         pieces.push_back((Piece){.type = row[x], .x = x, .y = 0, .player = 0});
         pieces.push_back((Piece){.type = row[x], .x = x, .y = 7, .player = 1});
     }
+
+    initialized_ = true;
 }
 
 void NativeContext::OnDisplayGeometryChanged(int display_rotation,
@@ -178,15 +180,16 @@ void NativeContext::OnDisplayGeometryChanged(int display_rotation,
 }
 
 void NativeContext::RenderBoard(glm::mat4 &projection_mat, glm::mat4 &view_mat,
-                                glm::mat4 &model_mat, float color_correction[4]) {
+                                glm::mat4 &model_mat, float color_correction[4], uint8_t *filter) {
     float c[] = {1.0f, 1.0f, 1.0f, 1.0f};
     glm::mat4 matrix = glm::translate(glm::scale(glm::mat4(1.0f), glm::vec3(0.00245)), glm::vec3(0, 0, -22.0));
     matrix = model_mat * matrix;
-    boardRenderer.Draw(projection_mat, view_mat, matrix, color_correction, c);
+    boardRenderer.Draw(projection_mat, view_mat, matrix, color_correction, c,
+                       FILTER_WIDTH, FILTER_HEIGHT, filter);
 }
 
 void NativeContext::RenderPieces(glm::mat4 &projection_mat, glm::mat4 &view_mat,
-                                 glm::mat4 &model_mat, float color_correction[4]) {
+                                 glm::mat4 &model_mat, float color_correction[4], uint8_t *filter) {
     float c[4] = {1.0f, 1.0f, 1.0f, 1.0f};
     /*glm::mat4 model_base = glm::scale(glm::mat4(1.0f), glm::vec3(0.001f));
     for (int t = 0; t < (int)pt_MAX; t++) {
@@ -194,18 +197,22 @@ void NativeContext::RenderPieces(glm::mat4 &projection_mat, glm::mat4 &view_mat,
         pieceRenderers[t].Draw(projection_mat, view_mat, model_mat, color_correction, c);
     }*/
 
-
     for (int x = 0; x < BOARD_SIZE; x++) {
         for (int y = 0; y < BOARD_SIZE; y++) {
             if (board[x][y] == pt_MAX) continue;
             glm::mat4 matrix = glm::translate(pieceMatrix[board[x][y]], boardOffsets[y][x]);
             matrix = model_mat * matrix;
-            pieceRenderers[board[x][y]].Draw(projection_mat, view_mat, matrix, color_correction, c);
+            pieceRenderers[board[x][y]].Draw(projection_mat, view_mat, matrix, color_correction, c,
+                                             FILTER_WIDTH, FILTER_HEIGHT, filter);
         }
     }
 }
 
 void NativeContext::OnDrawFrame() {
+    if (! initialized_) {
+        return;
+    }
+
     // Render the scene.
     glClearColor(0.1f, 0.1f, 0.9f, 1.0f);
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
@@ -294,8 +301,8 @@ void NativeContext::OnDrawFrame() {
                                                &model_mat);
             uint8_t* filter = getFilterTexture(projection_mat);
 
-            RenderBoard(projection_mat, view_mat, model_mat, color_correction);
-            RenderPieces(projection_mat, view_mat, model_mat, color_correction);
+            RenderBoard(projection_mat, view_mat, model_mat, color_correction, filter);
+            RenderPieces(projection_mat, view_mat, model_mat, color_correction, filter);
         }
     }
 

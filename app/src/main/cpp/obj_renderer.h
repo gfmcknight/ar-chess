@@ -46,12 +46,13 @@ class ObjRenderer {
   void SetMaterialProperty(float ambient, float diffuse, float specular,
                            float specular_power);
 
-  // Draws the model.
-  void Draw(const glm::mat4& projection_mat, const glm::mat4& view_mat,
-            const glm::mat4& model_mat, const float* color_correction4,
-            const float* object_color4) const;
+    // Draws the model.
+    void Draw(const glm::mat4& projection_mat, const glm::mat4& view_mat,
+              const glm::mat4& model_mat, const float* color_correction4,
+              const float* object_color4, int maskWidth, int maskHeight,
+              uint8_t *mask) const;
 
-  void RecenterVertices();
+    void RecenterVertices();
 
  private:
 
@@ -72,6 +73,8 @@ class ObjRenderer {
   // Loaded TEXTURE_2D object name
   GLuint texture_id_;
 
+  GLuint mask_texture_id_;
+
   // Shader program details
   GLuint shader_program_;
   GLint attri_vertices_;
@@ -80,6 +83,7 @@ class ObjRenderer {
   GLint uniform_mvp_mat_;
   GLint uniform_mv_mat_;
   GLint uniform_texture_;
+  GLint uniform_mask_;
   GLint uniform_lighting_param_;
   GLint uniform_material_param_;
   GLint uniform_color_correction_param_;

@@ -16,6 +16,7 @@
 precision mediump float;
 
 uniform sampler2D u_Texture;
+uniform sampler2D u_MyMask;
 
 uniform vec4 u_LightingParameters;
 uniform vec4 u_MaterialParameters;
@@ -48,6 +49,8 @@ void main() {
 
     // Flip the y-texture coordinate to address the texture from top-left.
     vec4 objectColor = texture2D(u_Texture, vec2(v_TexCoord.x, 1.0 - v_TexCoord.y));
+    vec3 maskColor = texture2D(u_MyMask, vec2((v_ViewPosition.x + 1.0) / 2.0, (v_ViewPosition.y) / 2.0));
+    objectColor.a = 1.0 - maskColor.r;
 
     // Apply color to grayscale image only if the alpha of u_ObjColor is
     // greater and equal to 255.0.

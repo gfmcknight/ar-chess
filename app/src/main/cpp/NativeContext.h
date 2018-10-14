@@ -74,6 +74,7 @@ private:
     ArFrame* ar_frame_ = nullptr;
     std::vector<ArAnchor *> anchors_;
 
+    bool initialized_ = false;
     bool install_requested_ = false;
     int width_ = 1;
     int height_ = 1;
@@ -98,9 +99,9 @@ private:
     hello_ar::ObjRenderer boardRenderer;
 
     void RenderBoard(glm::mat4 &projection_mat, glm::mat4 &view_mat,
-                     glm::mat4 &model_mat, float color_correction[4]);
+                     glm::mat4 &model_mat, float color_correction[4], uint8_t *filter);
     void RenderPieces(glm::mat4 &projection_mat, glm::mat4 &view_mat,
-                      glm::mat4 &model_mat, float color_correction[4]);
+                      glm::mat4 &model_mat, float color_correction[4], uint8_t *filter);
 
     uint8_t * getFilterTexture(const glm::mat4 &projection_mat) const;
 };
